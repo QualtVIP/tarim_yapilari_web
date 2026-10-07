@@ -15,7 +15,6 @@ def calculate_heat_loss(u, a, ti, td):
     return u * a * (ti - td)
 
 
-st.set_page_config(page_title="Kümes Havalandırma ve Isı Dengesi", layout="wide")
 st.title("Tarım Yapıları: Kümes Havalandırma Kapasitesi Hesaplayıcı")
 st.markdown("Sensör girdileri ve yapısal malzeme verilerine göre metrik sistemde optimum havalandırma debisi analizi.")
 
