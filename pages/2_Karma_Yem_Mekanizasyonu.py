@@ -3,11 +3,13 @@ import math
 
 st.title("Karma Yem Mekanizasyonu Hesaplamaları")
 
-tab1, tab2, tab3, tab4 = st.tabs([
-    "Dozajlama Kapasitesi", 
-    "Karıştırıcı Kapasitesi", 
-    "Bantlı Götürücü", 
-    "Pnömatik Götürücü"
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+    "Dozajlama Kapasitesi",
+    "Karıştırıcı Kapasitesi",
+    "Bantlı Götürücü",
+    "Pnömatik Götürücü",
+    "Kovalı Götürücü",
+    "Helezon Götürücü"
 ])
 
 with tab1:
@@ -30,6 +32,7 @@ with tab1:
     alpha_hel = col3.number_input("Helezon Açısal Hızı - α (rad/s)", min_value=0.0, value=10.0, step=0.5)
     phi_hel = col4.number_input("Helezon Dolum Oranı - ч", min_value=0.0, max_value=1.0, value=0.8, step=0.05)
     
+    # NOT: Formül hocanın Excel dosyasındaki (G5) haliyle aynen uygulanmıştır.
     Qo_hel = 3600 * ((D_hel + 2 * lambda_hel) - d_hel) * S_hel * alpha_hel * phi_hel / 2
     st.metric("Helezonlu Dozajlama Kapasitesi - Qo (m³/h)", f"{Qo_hel:.4f}")
     
@@ -56,6 +59,7 @@ with tab2:
     t3_kar = col2.number_input("Boşaltılıp Temizlenme Süresi - t3 (dak)", min_value=0.0, value=2.0, step=0.5)
     
     M_kar = V_kar * Pm_kar * phi_kar
+    # NOT: Excel dosyasında t = t1 - t2 - t3 yazıyor; fiziksel olarak toplam süre t1 + t2 + t3 olmalıdır.
     t_total = t1_kar + t2_kar + t3_kar
     
     Q_kar = 60 * (M_kar / t_total) if t_total > 0 else 0.0
@@ -69,7 +73,7 @@ with tab3:
     st.subheader("Sürekli Yük Taşıma Kapasitesi")
     col1, col2 = st.columns(2)
     F_sur = col1.number_input("Enine Kesit Alanı - F (m²)", min_value=0.0, value=0.05, step=0.01)
-    v_sur = col2.number_input("Taşınma Hızı - v (m/s) ", min_value=0.0, value=2.0, step=0.1)
+    v_sur = col2.number_input("Taşınma Hızı - v (m/s)", min_value=0.0, value=2.0, step=0.1, key="v_sur")
     Pm_sur = col1.number_input("Özgül Kütle - ρm (t/m³)", min_value=0.0, value=0.8, step=0.1)
     
     Qm_sur = 3600 * F_sur * v_sur * Pm_sur
@@ -79,7 +83,7 @@ with tab3:
     st.subheader("Parça Yük Taşıma Kapasitesi")
     col3, col4 = st.columns(2)
     M_parca = col3.number_input("Parça Kütlesi - M (kg)", min_value=0.0, value=15.0, step=1.0)
-    v_parca = col4.number_input("Bant Hızı - v (m/s)  ", min_value=0.0, value=1.5, step=0.1)
+    v_parca = col4.number_input("Bant Hızı - v (m/s)", min_value=0.0, value=1.5, step=0.1, key="v_parca")
     alpha_parca = col3.number_input("Parçalar Arası Uzaklık - α (m)", min_value=0.1, value=1.0, step=0.1)
     
     Qm_parca = 3.6 * M_parca * v_parca / alpha_parca
@@ -89,7 +93,7 @@ with tab3:
     st.subheader("Hareket Silindiri Motor Gücü")
     col5, col6 = st.columns(2)
     P_motor = col5.number_input("Gerekli Kuvvet - P (N)", min_value=0.0, value=1500.0, step=50.0)
-    v_motor = col6.number_input("Bant Hızı (Motor) - v (m/s)   ", min_value=0.0, value=2.0, step=0.1)
+    v_motor = col6.number_input("Bant Hızı (Motor) - v (m/s)", min_value=0.0, value=2.0, step=0.1, key="v_motor")
     verim_motor = col5.number_input("İletim Sistemi Verimi - ı", min_value=0.01, max_value=1.0, value=0.85, step=0.05)
     
     N_kw = (P_motor * v_motor) / (1000 * verim_motor)
@@ -98,7 +102,7 @@ with tab3:
 with tab4:
     st.header("Pnömatik Götürücü Kapasitesi")
     col1, col2 = st.columns(2)
-    D_pno = col1.number_input("Taşıma Kanalı Çapı - D (m) ", min_value=0.0, value=0.2, step=0.01)
+    D_pno = col1.number_input("Taşıma Kanalı Çapı - D (m)", min_value=0.0, value=0.2, step=0.01, key="D_pno")
     Vh_pno = col2.number_input("Hava Hızı - Vh (m/s)", min_value=0.0, value=25.0, step=1.0)
     Ph_pno = col1.number_input("Havanın Özgül Kütlesi - Ph (kg/m³)", min_value=0.0, value=1.2, step=0.1)
     mu_pno = col2.number_input("Konsantrasyon Katsayısı - μ", min_value=0.0, value=0.5, step=0.1)
@@ -109,3 +113,53 @@ with tab4:
     col3, col4 = st.columns(2)
     col3.metric("Hava Kapasitesi - Qh (t/h)", f"{Qh_pno:.2f}")
     col4.metric("Taşıma Kapasitesi - Qm (t/h)", f"{Qm_pno:.2f}")
+
+with tab5:
+    st.header("Kovalı Götürücünün Taşıma Kapasitesi")
+    col1, col2 = st.columns(2)
+    v_kov = col1.number_input("Kova (Bant) Hızı - v (m/s)", min_value=0.0, value=1.0, step=0.1, key="v_kov")
+    V_kov = col2.number_input("Her Bir Kovanın Hacmi - V (m³)", min_value=0.0, value=0.005, step=0.001, format="%.4f", key="V_kov")
+    Pm_kov = col1.number_input("Dökme Özgül Kütlesi - ρm (t/m³)", min_value=0.0, value=0.8, step=0.1, key="Pm_kov")
+    phi_kov = col2.number_input("Kovalar İçin Dolum Oranı - ч", min_value=0.0, max_value=1.0, value=0.8, step=0.05, key="phi_kov")
+    alpha_kov = col1.number_input("Kovalar Arası Uzaklık - α (m)", min_value=0.01, value=0.4, step=0.05, key="alpha_kov")
+    H_kov = col2.number_input("Materyalin Taşıma Yüksekliği - H (m)", min_value=0.0, value=5.0, step=0.5, key="H_kov")
+
+    Q_kov = 3600 * v_kov * V_kov * Pm_kov * phi_kov / alpha_kov
+    N_kov = 3.6 * Q_kov * H_kov / 102
+    c1, c2 = st.columns(2)
+    c1.metric("Taşıma Kapasitesi - Q (t/h)", f"{Q_kov:.2f}")
+    c2.metric("Hareket Silindirinde Gereksinilen Motor Gücü - N (kW)", f"{N_kov:.2f}")
+    st.caption("Derin ve sığ kovalarda α = (2,5–3)·h, V tipi kovalarda α = h alınır.")
+
+with tab6:
+    st.header("Helezon Götürücünün Taşıma Kapasitesi")
+    col1, col2 = st.columns(2)
+    D_g = col1.number_input("Helezonun Dış Çapı - D (m)", min_value=0.0, value=0.2, step=0.01, key="D_g")
+    d_g = col2.number_input("Helezonun İç Çapı - d (m)", min_value=0.0, value=0.05, step=0.01, key="d_g")
+    S_g = col1.number_input("Helezon Vida Adımı - S (m)", min_value=0.0, value=0.15, step=0.01, key="S_g")
+    lam_g = col2.number_input("Helezon Ucu ile Kanal Arası Uzaklık - ƛ (m)", min_value=0.0, value=0.01, step=0.005, key="lam_g")
+    alpha_g = col1.number_input("Helezon Açısal Hızı - α (rad/s)", min_value=0.0, value=10.0, step=0.5, key="alpha_g")
+    phi_g = col2.number_input("Helezon Dolum Oranı - ч", min_value=0.0, max_value=1.0, value=0.8, step=0.05, key="phi_g")
+    Pm_g = col1.number_input("Dökme Özgül Kütlesi - ρm (t/m³)", min_value=0.0, value=0.8, step=0.1, key="Pm_g")
+
+    # Düzeltme katsayısı k (Excel tablosu: eğim açısı -> k)
+    k_tablo = {0: 1.0, 5: 0.75, 10: 0.94, 15: 0.92, 20: 0.88, 30: 0.82, 40: 0.76, 50: 0.70}
+    egim = col2.selectbox("Eğim Açısı (°)", list(k_tablo.keys()), key="egim_g")
+    k_g = k_tablo[egim]
+    st.caption(f"Düzeltme katsayısı k = {k_g} (Excel tablosundan). Not: tablodaki 5° için 0,75 değeri 0°-10° arasında sıra dışı görünüyor; hocayla teyit edilebilir.")
+
+    Qm_g = 450 * ((D_g + 2 * lam_g) ** 2 - d_g ** 2) * S_g * alpha_g * phi_g * k_g * Pm_g
+    Qo_g = Qm_g / Pm_g if Pm_g > 0 else 0.0
+    st.metric("Helezon Götürücü Taşıma Kapasitesi - Qm (t/h)", f"{Qm_g:.2f}")
+
+    st.markdown("---")
+    st.subheader("Helezon Götürücüyü Çalıştırmak İçin Gerekli Güç")
+    col3, col4 = st.columns(2)
+    L_g = col3.number_input("Götürücü Uzunluğu - L (m)", min_value=0.0, value=5.0, step=0.5, key="L_g")
+    ang_g = col4.number_input("Götürücünün Yatayla Yaptığı Açı - α (°)", min_value=0.0, max_value=90.0, value=0.0, step=5.0, key="ang_g")
+    gam_g = col3.number_input("Dökme Hacim Ağırlığı - γm (N/m³)", min_value=0.0, value=7850.0, step=100.0, key="gam_g")
+    Wo_g = col4.number_input("Toplam Direnç Katsayısı - Wo", min_value=0.0, value=1.2, step=0.05, key="Wo_g")
+    st.caption("Wo: mısır, soya, hububat 1,15–1,20 | mineral gübre 1,70–2,50 | yumru bitkiler 1,20–1,70 | öğütülmüş kaya tuzu 2,50")
+
+    N_g = Qo_g * gam_g * L_g * (Wo_g + math.sin(math.radians(ang_g))) / (3.6 * 10 ** 6)
+    st.metric("Gerekli Güç - N (kW)", f"{N_g:.2f}")
