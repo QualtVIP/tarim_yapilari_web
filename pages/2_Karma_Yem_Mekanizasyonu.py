@@ -32,8 +32,8 @@ with tab1:
     alpha_hel = col3.number_input("Helezon Açısal Hızı - α (rad/s)", min_value=0.0, value=10.0, step=0.5)
     phi_hel = col4.number_input("Helezon Dolum Oranı - ч", min_value=0.0, max_value=1.0, value=0.8, step=0.05)
     
-    # NOT: Formül hocanın Excel dosyasındaki (G5) haliyle aynen uygulanmıştır.
-    Qo_hel = 3600 * ((D_hel + 2 * lambda_hel) - d_hel) * S_hel * alpha_hel * phi_hel / 2
+    # Qo = 3600 * (((D + 2ƛ)^2 - d^2) / 8) * S * α * ч
+    Qo_hel = 3600 * (((D_hel + 2 * lambda_hel) ** 2 - d_hel ** 2) / 8) * S_hel * alpha_hel * phi_hel
     st.metric("Helezonlu Dozajlama Kapasitesi - Qo (m³/h)", f"{Qo_hel:.4f}")
     
     st.markdown("---")
@@ -146,7 +146,6 @@ with tab6:
     k_tablo = {0: 1.0, 5: 0.75, 10: 0.94, 15: 0.92, 20: 0.88, 30: 0.82, 40: 0.76, 50: 0.70}
     egim = col2.selectbox("Eğim Açısı (°)", list(k_tablo.keys()), key="egim_g")
     k_g = k_tablo[egim]
-    st.caption(f"Düzeltme katsayısı k = {k_g} (Excel tablosundan). Not: tablodaki 5° için 0,75 değeri 0°-10° arasında sıra dışı görünüyor; hocayla teyit edilebilir.")
 
     Qm_g = 450 * ((D_g + 2 * lam_g) ** 2 - d_g ** 2) * S_g * alpha_g * phi_g * k_g * Pm_g
     Qo_g = Qm_g / Pm_g if Pm_g > 0 else 0.0
